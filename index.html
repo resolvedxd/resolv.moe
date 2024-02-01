@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=512">
+  <title>resolv.moe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"
+    integrity="sha512-01CJ9/g7e8cUmY0DFTMcUw/ikS799FHiOA0eyHsUWfOetgbx/t6oV4otQ5zXKQyIrQGTHSmRVPIgrgLcZi/WMA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="apple-touch-icon" sizes="180x180" href="/meta/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/meta/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/meta/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="css/index.css">
+  <!-- <link rel="mask-icon" href="/meta/safari-pinned-tab.svg" color="#916db8"> -->
+  <meta name="msapplication-TileColor" content="#916db8">
+  <meta name="theme-color" content="#916db8">
+  <meta name="twitter:card" content="summary">
+  <meta name="og:site_name" content="resolv.moe">
+  <meta property="og:title" content="resolv">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://resolv.moe">
+  <meta property="og:image" content="https://resolv.moe/meta/android-chrome-256x256.png">
+  <meta property="og:description" content="resolv's personal site">
+</head>
+
+<body>
+  <canvas id="background_canvas" class="fullscreen"></canvas>
+  <script src="js/background.js" defer></script>
+
+  <!-- <div hidden="true" id="listening_to_main"
+    style="position: absolute; top: 10px; left: 10px; margin:0; width: 260px; height: 87px">
+    <img style="position: absolute" class="main_panel" src="listening_to.svg" width="260" height="88">
+    <p style="margin: 5px 0px 5px 5px;font-size: 11pt; font-weight: bold; font-variant: small-caps">im currently
+      listening to</p>
+    <img id="song_cover" style="margin-left: 6px; margin-right: 5px; float:left; width: 50px;">
+    <p id="song_name"
+      style="margin: 0px; font-weight: bold; overflow: hidden;white-space: nowrap; text-overflow: ellipsis;"></p>
+    <p id="song_artist" style="margin: 0px;overflow: hidden;white-space: nowrap; text-overflow: ellipsis;"></p>
+    <img src="img/note.png" style="position: absolute; left:85%; top: 20%; opacity: 0.4;">
+    <img id="song_progress" src="img/music_slider.png" style="position: absolute; bottom: 0px; left: 0px; height: 4px;"
+      width="236">
+  </div>
+  <script src="js/song.js"></script> -->
+
+  <div style="display:flex;justify-content:center;align-items:center;height: 100vh;">
+    <div style="margin-right: 34px">
+      <svg class="arrow" id="arrow_left" style="transform: rotate(180deg);" width="49" height="47" viewBox="0 0 49 47"
+        fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M6.51999 3.61539L6.51999 4.50001L6.51999 42.6258L6.51999 43.3505L7.5 42.8695L47 23.483L7.5 4.09638L6.51999 3.61539Z"
+          fill="#916DB8" />
+        <path
+          d="M6.51999 3.61539L7.5 4.09638M6.51999 3.61539L1 0.999999L1 1.5L6.51999 4.50001M6.51999 3.61539L6.51999 4.50001M6.51999 43.3505L0.999997 46L0.999997 45.5L6.51999 42.6258M6.51999 43.3505L7.5 42.8695M6.51999 43.3505L6.51999 42.6258M7.5 4.09638L47 23.483L7.5 42.8695M7.5 4.09638L7.5 42.8695M6.51999 42.6258L6.51999 4.50001"
+          stroke="#916DB8" />
+      </svg>
+      <h4 id="arrow_left_hint">to projects</h4>
+    </div>
+
+    <!-- PANELS BEGIN -->
+    <div style="position:relative" class="panel" id="main">
+      <div style="position: absolute; left:0; top: 0;  width: 85%;">
+        <h1 style="margin-left: 15%;">resolv</h1>
+        <ul>
+          <li>
+            software developer from bulgaria
+            focused on low-level with some
+            experience in graphics and web development
+          </li>
+          <li>in love with motorcycles, cyberpunk, low-life and post-apocalyptic vibes</li>
+          <li style="margin-top: 60px">
+            contact me at <span class="bold">me@resolv.moe</span>
+          </li>
+        </ul>
+      </div>
+      <img class="main_panel" src="img/main_panel2.svg">
+    </div>
+
+    <div style="position:relative; display: none;" class="panel" id="projects">
+      <div style="position: absolute; left:0; top: 0; width: 85%;margin-left:15%">
+        <h1>projects</h1>
+        <a href="https://github.com/resolvedxd/bulmaselect">bulmaselect</a>
+        <span>multiselect JS library, styled around bulma.</span>
+        <br>
+        <a href="https://github.com/resolvedxd/kittylib">kittylib</a>
+        <span>cute c++ renderer, focused on performance and ease of use.</span>
+        <div class="divider">tools</div>
+        <a href="/webring_tree">webring tree visualizer</a>
+        <span>visualizes a webring into a tree.</span>
+        <br>
+        <a href="/honeypot_stats">honeypot stats</a>
+        <span>stats about hosts trying to access this server without authorization.</span>
+      </div>
+      <img class="main_panel" src="img/main_panel2.svg">
+    </div>
+
+    <div style="position:relative; display: none;" class="panel" id="friends">
+      <div style="position: absolute; left:0; top: 0;  width: 85%;margin-left:15%">
+        <h1>friends</h1>
+        <a href="https://resolv.moe"><img src="friends/resolv.png"></a>
+        <a href="https://arciniega.one"><img src="friends/solely.png"></a>
+        <a href="https://botoaca.github.io"><img src="/friends/pihnea.png"></a>
+        <a href="https://www.espi.me"><img src="/friends/espi.png"></a>
+        <p style="margin-top:32%;padding-right: 10%;">if you'd like to be friends, email me and i'll give you my discord
+          tag!</p>
+      </div>
+      <img class="main_panel" src="img/main_panel2.svg">
+    </div>
+    <!-- PANELS END -->
+
+
+    <div style="width:332px;" hidden="true" id="placeholder_panel"></div>
+
+    <script src="js/animate_panel.js" defer></script>
+    <canvas id="anim" style="position: absolute; width: 332px; height: 100vh;bottom: 0;"></canvas>
+    <div style="margin-left: 34px;">
+      <svg class="arrow" id="arrow_right" width="49" height="47" viewBox="0 0 49 47" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M6.51999 3.61539L6.51999 4.50001L6.51999 42.6258L6.51999 43.3505L7.5 42.8695L47 23.483L7.5 4.09638L6.51999 3.61539Z"
+          fill="#916DB8" />
+        <path
+          d="M6.51999 3.61539L7.5 4.09638M6.51999 3.61539L1 0.999999L1 1.5L6.51999 4.50001M6.51999 3.61539L6.51999 4.50001M6.51999 43.3505L0.999997 46L0.999997 45.5L6.51999 42.6258M6.51999 43.3505L7.5 42.8695M6.51999 43.3505L6.51999 42.6258M7.5 4.09638L47 23.483L7.5 42.8695M7.5 4.09638L7.5 42.8695M6.51999 42.6258L6.51999 4.50001"
+          stroke="#916DB8" />
+      </svg>
+      <h4 id="arrow_right_hint">to projects</h4>
+    </div>
+
+
+  </div>
+</body>
+
+</html>
