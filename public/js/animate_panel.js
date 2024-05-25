@@ -37,9 +37,9 @@ function gen_img(el, ctx, canvas, title, delay = 100) {
     }
 
     setTimeout(() => {
-      el.style.width = Math.min(el.clientWidth, 600) + "px";
-      el.style.height = Math.min(el.clientHeight, 400) + "px";
       el.style.overflow = "hidden";
+      el.style.width = Math.min(el.clientWidth + 2, 600) + "px";
+      el.style.height = Math.min(el.clientHeight + 2, 400) + "px";
       domtoimage.toPng(el).then((r) => {
         const box = el.getBoundingClientRect();
         el.style.height = el.style.width = "";
