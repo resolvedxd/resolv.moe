@@ -39,7 +39,7 @@ function gen_img(el, ctx, canvas, title, delay = 100) {
     setTimeout(() => {
       el.style.overflow = "hidden";
       el.style.width = Math.min(el.clientWidth + 2, 600) + "px";
-      el.style.height = Math.min(el.clientHeight + 2, 400) + "px";
+      el.style.height = Math.min(el.clientHeight + 2, 600) + "px";
       domtoimage.toPng(el).then((r) => {
         const box = el.getBoundingClientRect();
         el.style.height = el.style.width = "";
@@ -72,7 +72,6 @@ function gen_img(el, ctx, canvas, title, delay = 100) {
 window.addEventListener("load", () => {
   const placeholder_panel = document.getElementById("placeholder_panel");
   const canvas = document.getElementById("anim");
-  const canvas_box = canvas.getBoundingClientRect();
   const ctx = canvas.getContext("2d", { alpha: true });
 
   const title_text = document.getElementById("title_text");
@@ -90,6 +89,7 @@ window.addEventListener("load", () => {
   const anim_length = 1000;
 
   const draw = (t) => {
+    const canvas_box = canvas.getBoundingClientRect();
     const panel = panels[current_panel];
     const prev_panel = panels[previous_panel];
     const box = prev_panel.box;
@@ -158,16 +158,17 @@ window.addEventListener("load", () => {
 
   const COMMENT_REGEX = /<!--(.+)-->/;
   const get_page = async (id, delay = 100) => {
-    const page_req = await fetch(`/pages/${id}.html`);
+    const page_req = await fetch(`/pages/${id}`);
     const page_html = await page_req.text();
     console.log("find", id);
     const div = document.createElement("div");
     div.id = id;
-    div.className = "panel main_panel";
+    div.className = "panel";
     div.style.display = "none";
     div.style.position = "relative";
     div.innerHTML = page_html;
     panels_div.appendChild(div);
+    document.dispatchEvent(new CustomEvent("new_page", { detail: id }));
     panels_el.push(document.getElementById(id));
     fix_links();
     let title = COMMENT_REGEX.exec(page_html);
@@ -212,15 +213,26 @@ window.addEventListener("load", () => {
     }
   };
 
-  fix_links();
-  for (let i = 0; i < panels_el.length; i++) {
-    const title = COMMENT_REGEX.exec(panels_el[i].innerHTML);
-    gen_img(panels_el[i], ctx, canvas, title ? title[1] : ":3");
-  }
+  const gen_panels_el = () => {
+    fix_links();
+    for (let i = 0; i < panels_el.length; i++) {
+      const title = COMMENT_REGEX.exec(panels_el[i].innerHTML);
+      gen_img(panels_el[i], ctx, canvas, title ? title[1] : ":3");
+    }
+  };
+  gen_panels_el();
 
+  let timeout_handle;
   window.addEventListener("resize", () => {
-    canvas.width = document.getElementById("panels").clientWidth;
-    ctx.canvas.width = canvas.clientWidth;
-    ctx.canvas.height = canvas.clientHeight;
+    clearTimeout(timeout_handle);
+    timeout_handle = setTimeout(() => {
+      canvas.width = document.getElementById("panels").clientWidth;
+      ctx.canvas.width = canvas.clientWidth;
+      ctx.canvas.height = canvas.clientHeight;
+      panels.length = 0;
+      panels_el.length = Math.min(panels_el.length, 5);
+      console.log(panels_el.length);
+      gen_panels_el();
+    }, 50);
   });
 });

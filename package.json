@@ -1,0 +1,12 @@
+{
+  "name": "resolv.moe",
+  "version": "1.0.0",
+  "description": "This is my personal website, you can see it on: [resolv.moe](https://resolv.moe)",
+  "main": "guestbook.js",
+  "scripts": {},
+  "author": "",
+  "dependencies": {
+    "express": "^4.19.2",
+    "fast-geoip": "^1.1.88"
+  }
+}

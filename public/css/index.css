@@ -2,23 +2,9 @@ html,
 body {
   overflow: hidden;
 }
-
 body {
   position: relative;
 }
-
-/* latin-ext */
-/* @font-face { */
-/*   font-family: "Play"; */
-/*   font-style: normal; */
-/*   font-weight: 400; */
-/*   font-display: swap; */
-/*   src: url(https://fonts.gstatic.com/s/play/v17/6aez4K2oVqwIvts2H70Q13HqPA.woff2) format("woff2"); */
-/*   unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, */
-/*     U+2C60-2C7F, U+A720-A7FF; */
-/* } */
-
-/* latin */
 @font-face {
   font-family: "Play";
   font-style: normal;
@@ -28,19 +14,6 @@ body {
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-
-/* latin-ext */
-/* @font-face { */
-/*   font-family: "Play"; */
-/*   font-style: normal; */
-/*   font-weight: 700; */
-/*   font-display: swap; */
-/*   src: url(https://fonts.gstatic.com/s/play/v17/6ae84K2oVqwItm4TCp4y2lvQNTIQoQ.woff2) format("woff2"); */
-/*   unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, */
-/*     U+2C60-2C7F, U+A720-A7FF; */
-/* } */
-
-/* latin */
 @font-face {
   font-family: "Play";
   font-style: normal;
@@ -50,7 +23,6 @@ body {
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-
 .fullscreen {
   top: 0;
   left: 0;
@@ -61,15 +33,12 @@ body {
   position: absolute;
   z-index: -2;
 }
-
 body {
   margin: 0;
 }
-
 .arrow {
   fill-opacity: 0.19;
 }
-
 @keyframes arrow_hover {
   from,
   to {
@@ -80,36 +49,20 @@ body {
     fill-opacity: 0.5;
   }
 }
-
-@keyframes hint_hover {
-  from,
-  to {
-    color: #ffffffaa;
-  }
-
-  50% {
-    color: #ffffff55;
-  }
-}
 .arrow {
   animation: arrow_hover 4s infinite;
 }
-
 #back {
   cursor: pointer;
 }
-
 .panel {
   z-index: 3;
   padding-left: 10px;
   padding-right: 10px;
-}
-
-.main_panel {
   /* height: auto; */
   min-height: 15vh;
   max-width: 600px;
-  max-height: 400px;
+  max-height: 600px;
   background: #2a2331;
   border: 1px solid #916db8;
   margin: 0;
@@ -189,22 +142,86 @@ h4 {
   margin: 0;
 }
 
-/* width */
 ::-webkit-scrollbar {
   width: 5px;
 }
-
-/* Track */
 ::-webkit-scrollbar-track {
   background: #463a51;
 }
-
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background: #916db8;
 }
-
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #aa8fc8;
+}
+
+input[type="text"],
+textarea {
+  resize: none;
+  background: #463a51;
+  color: #fff;
+  border: 0;
+  box-sizing: border-box;
+  font-family: "Play";
+  font-size: medium;
+}
+
+/* copied from w3schools */
+.cbcontainer {
+  display: block;
+  position: relative;
+  padding-left: 19px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.cbcontainer input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1em;
+  width: 1em;
+  font-family: "Play";
+  font-size: medium;
+  background-color: #463a51;
+  margin-top: 1px;
+}
+.cbcontainer input:checked ~ .checkmark {
+  background-color: #d2a8ff;
+}
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.cbcontainer input:checked ~ .checkmark:after {
+  display: block;
+}
+.cbcontainer .checkmark:after {
+  left: 4px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.post {
+  margin-bottom: 10px;
+  word-wrap: break-word;
+}
+.post p {
+  white-space: pre-line;
 }
