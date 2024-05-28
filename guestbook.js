@@ -1,6 +1,7 @@
 // guestbook server
 const config = {
   port: 1339,
+  host: "localhost",
   postsppg: 5, // posts per page
   limits: {
     page_index: 10,
@@ -113,7 +114,6 @@ app.post("/post", (req, res) => {
   if (req.body.comment.split("\n").length > config.limits.newlines)
     return raise_error(`you cant have more than ${config.limits.newlines} newlines`, res);
 
-  save_posts();
   posts.push({
     name: req.body.name ? req.body.name : "anon",
     comment: req.body.comment,
@@ -121,10 +121,11 @@ app.post("/post", (req, res) => {
     time: Math.round(Date.now() / 1000),
     ip: req.ip,
   });
+  save_posts();
   res.send("wazza");
   console.log("post made");
 });
 
-app.listen(config.port, () => {
+app.listen(config.port, config.host, () => {
   console.log(`listening on ${config.port}`);
 });
