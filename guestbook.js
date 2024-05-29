@@ -19,6 +19,8 @@ const app = express();
 app.set("trust proxy", true);
 app.use(express.json());
 
+const NOTO_EMOJI = `<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">`;
+
 try {
   fs.accessSync(config.postsfilename, fs.constants.F_OK);
 } catch (err) {
@@ -89,13 +91,20 @@ app.get("/page", async (req, res) => {
 
 app.get("/guestbook", async (req, res) => {
   let page = req.query.pg ? req.query.pg.replace(".html", "") : 0;
+  const ua = req.headers["user-agent"];
+  const is_windows_client = ua ? ua.match(/(Windows NT)|(Win64)/) : false;
+
+  let out = BASE.replace("__REPLACE__ID__HERE__", "guestbook")
+    .replace("__REPLACE__PAGE__HERE__", await gen_page(page))
+    .replace("__REPLACE__TITLE__HERE", "guestbook");
+
+  if (is_windows_client)
+    out = [out.slice(0, out.indexOf("</head>")), NOTO_EMOJI, out.slice(out.indexOf("</head>") + "</head>".length)].join(
+      "",
+    );
 
   res.set("Content-Type", "text/html");
-  res.send(
-    BASE.replace("__REPLACE__ID__HERE__", "guestbook")
-      .replace("__REPLACE__PAGE__HERE__", await gen_page(page))
-      .replace("__REPLACE__TITLE__HERE", "guestbook"),
-  );
+  res.send(out);
 });
 
 const raise_error = (msg, res) => {
