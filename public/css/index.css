@@ -109,6 +109,10 @@ a:visited {
   margin-right: 30px;
 }
 
+.after0mgn::after {
+  margin: 0;
+}
+
 p {
   font-size: 14pt;
 }
