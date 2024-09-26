@@ -179,14 +179,19 @@ window.addEventListener("load", () => {
     Array.from(document.getElementsByTagName("a")).forEach((e) => {
       if (e.attributes["href"] && !e.attributes["href"].value.includes("http")) {
         const href = e.attributes.href.value;
+
         if (e.id == "back") {
-          const path_split = document.location.pathname.replace(/^\/{1,2}/, "").split("/");
-          if (path_split.length > 2) {
-            path_split.pop();
-            href = path_split.join("/") + ".html";
-          }
-        }
-        e.addEventListener("click", navigate.bind(null, href));
+          e.addEventListener("click", () => {
+            let back_href = "index";
+            const path_split = document.location.pathname.replace(/^\/{1,2}/, "").split("/");
+            if (path_split.length > 1) {
+              path_split.pop();
+              back_href = path_split.join("/") + ".html";
+            }
+            navigate(back_href);
+          });
+        } else e.addEventListener("click", navigate.bind(null, href));
+
         e.addEventListener("mouseover", () => {
           if (!panels_el.find((el) => el.id == href)) panels_promises.push(get_page(href));
         });
