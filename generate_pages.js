@@ -17,10 +17,17 @@ function recurse_pages(path) {
 
             fs.readFile(path + "/" + dirent.name, { encoding: "utf8" }, (err, data) => {
               let title = /<!--(.+)-->/.exec(data);
+              let back_link = "index";
+              let path_split = out_path.split("/");
+              if (path_split.length > 2) {
+                path_split.pop();
+                back_link = path_split.join("/") + ".html";
+              }
               let replace_data = {
                 PAGE: data,
                 ID: dirent.name.replace(".html", ""),
                 TITLE: title ? title[1] : ":3",
+                BACK_LINK: back_link,
               };
               out = replace_strings(replace_data, BASE);
 

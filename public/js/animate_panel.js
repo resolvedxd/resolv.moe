@@ -178,10 +178,17 @@ window.addEventListener("load", () => {
   const fix_links = () => {
     Array.from(document.getElementsByTagName("a")).forEach((e) => {
       if (e.attributes["href"] && !e.attributes["href"].value.includes("http")) {
-        e.addEventListener("click", navigate.bind(null, e.attributes["href"].value));
-        const id = e.attributes.href.value;
+        const href = e.attributes.href.value;
+        if (e.id == "back") {
+          const path_split = document.location.pathname.replace(/^\/{1,2}/, "").split("/");
+          if (path_split.length > 2) {
+            path_split.pop();
+            href = path_split.join("/") + ".html";
+          }
+        }
+        e.addEventListener("click", navigate.bind(null, href));
         e.addEventListener("mouseover", () => {
-          if (!panels_el.find((el) => el.id == id)) panels_promises.push(get_page(id));
+          if (!panels_el.find((el) => el.id == href)) panels_promises.push(get_page(href));
         });
         e.removeAttribute("href");
       }
@@ -194,8 +201,8 @@ window.addEventListener("load", () => {
     }
     if (last_elapsed_time >= anim_length || last_elapsed_time == 0) {
       await Promise.all(panels_promises);
-      if (id != "index") history.pushState({}, "resolv.moe", window.location.origin + "/" + id);
-      else history.pushState({}, "resolv.moe", window.location.origin);
+      // if (id != "index") history.pushState({}, "resolv.moe", window.location.origin + "/" + id);
+      // else history.pushState({}, "resolv.moe", window.location.origin);
       previous_panel = current_panel;
 
       current_panel = panels.findIndex((p) => p.el.id == id);
