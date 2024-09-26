@@ -201,8 +201,8 @@ window.addEventListener("load", () => {
     }
     if (last_elapsed_time >= anim_length || last_elapsed_time == 0) {
       await Promise.all(panels_promises);
-      // if (id != "index") history.pushState({}, "resolv.moe", window.location.origin + "/" + id);
-      // else history.pushState({}, "resolv.moe", window.location.origin);
+      if (id != "index") history.pushState({}, "resolv.moe", window.location.origin + "/" + id);
+      else history.pushState({}, "resolv.moe", window.location.origin);
       previous_panel = current_panel;
 
       current_panel = panels.findIndex((p) => p.el.id == id);
