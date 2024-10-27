@@ -177,7 +177,7 @@ window.addEventListener("load", () => {
 
   const fix_links = () => {
     Array.from(document.getElementsByTagName("a")).forEach((e) => {
-      if (e.attributes["href"] && !e.attributes["href"].value.includes("http")) {
+      if (e.attributes["href"] && !e.attributes["href"].value.includes("http") && !e.attributes["href"].value.endsWith(".asc")) {
         const href = e.attributes.href.value;
 
         if (e.id == "back") {
