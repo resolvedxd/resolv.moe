@@ -70,7 +70,6 @@ function gen_img(el, ctx, canvas, title, delay = 100) {
 }
 
 window.addEventListener("load", () => {
-  const placeholder_panel = document.getElementById("placeholder_panel");
   const canvas = document.getElementById("anim");
   const ctx = canvas.getContext("2d", { alpha: true });
 
@@ -100,21 +99,19 @@ window.addEventListener("load", () => {
     const anim_t = ease((elapsed_time % anim_length) / anim_length);
     const anim_t_new = ease(1 + (elapsed_time % anim_length) / anim_length);
 
-    if (elapsed_time >= anim_length || navigator.maxTouchPoints > 0) {
+    if (elapsed_time >= anim_length) {
       panel.el.style.display = "block";
       title.style.visibility = "visible";
       panel.el.style.visibility = "visible";
     }
 
-    if (last_elapsed_time > anim_length || navigator.maxTouchPoints > 0) {
+    if (last_elapsed_time > anim_length) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       return;
     }
     last_elapsed_time = elapsed_time;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const offset_a = lerp(10, 15, document.children[0].clientHeight / 1363 - 1);
-    const offset_b = lerp(15, 20, document.children[0].clientHeight / 1363 - 1);
     const RES = 3;
 
     const y_offset = box.top;
@@ -243,8 +240,17 @@ window.addEventListener("load", () => {
       ctx.canvas.height = canvas.clientHeight;
       panels.length = 0;
       panels_el.length = Math.min(panels_el.length, 5);
-      console.log(panels_el.length);
       gen_panels_el();
     }, 50);
+  });
+
+  // preload small pages on load
+  const small_pages = ["about", "contact", "guestbook", "articles.html"];
+  small_pages.forEach(p => panels_promises.push(get_page(p)));
+
+  window.addEventListener("popstate", () => {
+    let location_id = window.location.pathname.replace(/^\//, "");
+    if (location_id.length == 0) location_id = "index";
+    navigate(location_id);
   });
 });
