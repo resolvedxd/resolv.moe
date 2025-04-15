@@ -1,0 +1,79 @@
+<!--server load-->
+<div style="width: 400px"></div>
+<a onclick="toggle_chart('pasthour_but', 'pasthour', 'hour_chart', 'sys_stats_1hr')" id="pasthour_but">past hour ►</a>
+<div id="pasthour" style="display:none;">
+  <canvas id="hour_chart" width="400" height="200"></canvas>
+</div>
+<br>
+<a onclick="toggle_chart('pastday_but', 'pastday', 'day_chart', 'sys_stats_24hr')" id="pastday_but">past day ►</a>
+<div id="pastday" style="display:none;">
+  <canvas id="day_chart" width="400" height="200"></canvas>
+</div>
+
+<script src="/js/meowgraphs.js"></script>
+<script>
+  const uncollapsed = "►";
+  const collapsed = "▼";
+  async function toggle_chart(button_id, div_id, canvas_id, path) {
+    const button = document.getElementById(button_id);
+    const div = document.getElementById(div_id);
+    if (button.innerText.endsWith(collapsed))
+      button.innerText = button.innerText.replace(collapsed, uncollapsed);
+    else button.innerText = button.innerText.replace(uncollapsed, collapsed);
+    div.style.display = button.innerText.endsWith(collapsed) ? "block" : "none";
+
+    const req = await fetch(`https://resolv.moe/${path}?t=${Date.now()}`);
+    const logs_txt = (await req.text()).split("\n");
+    const logs = [];
+    logs_txt.forEach(l => {
+      if (l.length <= 1) return;
+
+      try {
+        const log = JSON.parse(l);
+        logs.push(log);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    const data = [[], [], [], []];
+    logs.forEach(l => {
+      data[0].push([l.time, l.mem / 20.48]);
+      data[1].push([l.time, l.cpu]);
+      data[2].push([l.time, l.rx / 1000000]);
+      data[3].push([l.time, l.tx / 1000000]);
+    });
+
+
+    const chart_style = {
+      bg_color: "#ededed",
+      line_color: "#d2a8ff",
+      text_color: "#ffffff",
+      line_width: 2,
+      ticks_color: "#cfcfcf",
+      ticks_width: 1,
+      font: "12px Arial",
+      subtitle_mode: "interval", // "interval" or "point"
+      subtitle_x: (x) => {
+        let a = new Date(x); return `${a.getHours().toString().padStart(2, "0")}:${a.getMinutes().toString().padStart(2, "0")}`
+      },
+      subtitle_y: (y) => y.toFixed(1),
+      subtitle_line_color: "#cfcfcf",
+      subtitle_line_width: 1,
+      subtitle_line_length: 3,
+      subtitle_line_enabled: true,
+      ticks_enabled: true,
+      legend_enabled: true,
+      subscribe_events: true,
+      range_y_min: -1,
+      range_y_max: -1,
+    };
+    document.g = new LineChart(canvas_id,
+      [{data: data[0], label: "Memory usage(%)", color: "#C1E1C1"}, // #fdfd96
+      {data: data[1], label: "CPU usage(%)", color: "#B39EB5"}, // #FAA0A0
+      {data: data[2], label: "RX(MB)", color: "#fdfd96"}, // #C1E1C1
+      {data: data[3], label: "TX(MB)", color: "#FAA0A0"}],
+      chart_style);
+
+  }
+</script>

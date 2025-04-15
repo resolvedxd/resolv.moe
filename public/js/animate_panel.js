@@ -164,6 +164,19 @@ window.addEventListener("load", () => {
     div.style.display = "none";
     div.style.position = "relative";
     div.innerHTML = page_html;
+
+    // fix script tags
+    Array.from(div.querySelectorAll("script")).forEach(old_script => {
+      const new_script = document.createElement("script");
+      if (old_script.src) {
+        new_script.type = "text/javascript";
+        new_script.src = old_script.src;
+      }
+      new_script.innerHTML = old_script.innerHTML;
+      old_script.parentNode.removeChild(old_script);
+      div.appendChild(new_script);
+    });
+
     panels_div.appendChild(div);
     document.dispatchEvent(new CustomEvent("new_page", { detail: id }));
     panels_el.push(document.getElementById(id));
