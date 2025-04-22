@@ -153,6 +153,12 @@ window.addEventListener("load", () => {
     requestAnimationFrame(draw);
   };
 
+  const remove_element = (from, element) => {
+    Array.from(from.querySelectorAll(element)).forEach(el => {
+      el.parentNode.removeChild(el);
+    });
+  }
+
   const COMMENT_REGEX = /<!--(.+)-->/;
   const get_page = async (id, delay = 100) => {
     const page_req = await fetch(`/pages/${id}`);
@@ -186,6 +192,9 @@ window.addEventListener("load", () => {
   };
 
   const fix_links = () => {
+    // fix noscript tags popping up in element image
+    remove_element(document, "noscript");
+
     Array.from(document.getElementsByTagName("a")).forEach((e) => {
       if (e.attributes["href"] && !e.attributes["href"].value.includes("http") && !e.attributes["href"].value.endsWith(".asc")) {
         const href = e.attributes.href.value;
