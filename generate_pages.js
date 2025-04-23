@@ -31,7 +31,7 @@ function recurse_pages(path) {
               };
               out = replace_strings(replace_data, BASE);
 
-              console.log(out_path + ':"""' + data + '"""');
+              console.log(out_path);
 
               fs.writeFile("./public" + out_path, out, { encoding: "utf8", flag: "w" }, (err) => {
                 if (err) {
