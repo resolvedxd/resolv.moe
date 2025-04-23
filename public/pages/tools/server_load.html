@@ -14,14 +14,8 @@
 <script>
   const uncollapsed = "►";
   const collapsed = "▼";
-  async function toggle_chart(button_id, div_id, canvas_id, path) {
-    const button = document.getElementById(button_id);
-    const div = document.getElementById(div_id);
-    if (button.innerText.endsWith(collapsed))
-      button.innerText = button.innerText.replace(collapsed, uncollapsed);
-    else button.innerText = button.innerText.replace(uncollapsed, collapsed);
-    div.style.display = button.innerText.endsWith(collapsed) ? "block" : "none";
-
+  const charts = {};
+  async function fetch_data(path) {
     const req = await fetch(`https://resolv.moe/${path}?t=${Date.now()}`);
     const logs_txt = (await req.text()).split("\n");
     const logs = [];
@@ -43,7 +37,23 @@
       data[2].push([l.time, l.rx / 1000000]);
       data[3].push([l.time, l.tx / 1000000]);
     });
+    return data;
+  }
 
+  async function toggle_chart(button_id, div_id, canvas_id, path) {
+    const button = document.getElementById(button_id);
+    const div = document.getElementById(div_id);
+    if (button.innerText.endsWith(collapsed))
+      button.innerText = button.innerText.replace(collapsed, uncollapsed);
+    else button.innerText = button.innerText.replace(uncollapsed, collapsed);
+    div.style.display = button.innerText.endsWith(collapsed) ? "block" : "none";
+
+    Object.values(charts).forEach(c => c.update_overlay_pos());
+
+    // TODO: update data in existing chart instead of returning
+    if (charts[path] != undefined) return;
+
+    const data = await fetch_data(path);
 
     const chart_style = {
       bg_color: "#ededed",
@@ -52,7 +62,8 @@
       line_width: 2,
       ticks_color: "#cfcfcf",
       ticks_width: 1,
-      font: "12px Arial",
+      font_name: "Play",
+      font_size: "14px",
       subtitle_mode: "interval", // "interval" or "point"
       subtitle_x: (x) => {
         let a = new Date(x); return `${a.getHours().toString().padStart(2, "0")}:${a.getMinutes().toString().padStart(2, "0")}`
@@ -68,12 +79,11 @@
       range_y_min: -1,
       range_y_max: -1,
     };
-    document.g = new LineChart(canvas_id,
+    charts[path] = new LineChart(canvas_id,
       [{data: data[0], label: "Memory usage(%)", color: "#C1E1C1"}, // #fdfd96
       {data: data[1], label: "CPU usage(%)", color: "#B39EB5"}, // #FAA0A0
       {data: data[2], label: "RX(MB)", color: "#fdfd96"}, // #C1E1C1
       {data: data[3], label: "TX(MB)", color: "#FAA0A0"}],
       chart_style);
-
   }
 </script>

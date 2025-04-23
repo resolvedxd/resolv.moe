@@ -2,10 +2,13 @@ const default_config = {
   bg_color: "#ededed",
   line_color: "#000000",
   text_color: "#ffffff",
+  tooltip_bg: "#2a2331cc",
+  tooltip_border: "#916db8",
   line_width: 2,
   ticks_color: "#cfcfcf",
   ticks_width: 1,
-  font: "12px Arial",
+  font_name: "Arial",
+  font_size: "12px",
   subtitle_mode: "interval", // "interval" or "point"
   subtitle_x: (x) => x.toString(),
   subtitle_y: (y) => y.toString(),
@@ -15,7 +18,7 @@ const default_config = {
   subtitle_line_enabled: true,
   ticks_enabled: true,
   legend_enabled: true,
-  subscribe_events: true,
+  overlay_enabled: true,
   range_y_min: -1,
   range_y_max: -1,
 };
@@ -30,6 +33,9 @@ class LineChart {
   el;
   ctx;
   cursor = { x: -1, y: -1 };
+  overlay;
+  octx;
+  rendered_datapoints = [];
 
   min_x = Number.MAX_VALUE;
   min_y = Number.MAX_VALUE;
@@ -45,8 +51,20 @@ class LineChart {
     this.data = data;
     this.config = { ...default_config, ...config };
 
-    if (this.config.subscribe_events) {
-      el.addEventListener("mousemove", (ev) => this.mousemove(ev));
+    if (this.config.overlay_enabled) {
+      // create canvas overlay to draw tooltips on
+      let overlay = document.createElement("canvas");
+      Array.from(el.attributes).forEach(attr => {
+        if (attr.name != "id") overlay.setAttribute(attr.name, attr.value);
+      });
+
+      this.octx = overlay.getContext("2d");
+      this.overlay = overlay;
+      this.update_overlay_pos();
+      el.parentNode.appendChild(overlay);
+
+      overlay.addEventListener("mousemove", (ev) => this.mousemove(ev));
+      overlay.addEventListener("mouseout", (ev) => this.mouseout(ev));
     }
 
     this.recalc_all(true);
@@ -114,6 +132,16 @@ class LineChart {
     }
   }
 
+  update_overlay_pos() {
+    this.overlay.style.position = "absolute";
+    const bounds_overlay = this.el.getBoundingClientRect();
+    const bounds_parent = this.el.parentNode.parentNode.getBoundingClientRect();
+    const diff_x = bounds_overlay.x - bounds_parent.x;
+    const diff_y = bounds_overlay.y - bounds_parent.y;
+    this.overlay.style.left = `${diff_x}px`;
+    this.overlay.style.top = `${diff_y}px`;
+  }
+
   draw() {
     const ctx = this.ctx;
     const config = this.config;
@@ -121,22 +149,21 @@ class LineChart {
     const width = this.el.width;
     const height = this.el.height;
     ctx.clearRect(0, 0, width, height);
+    this.rendered_datapoints = [];
 
-    ctx.font = config.font;
+    ctx.font = `${config.font_size} ${config.font_name}`;
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
     const _tm = ctx.measureText("W");
     const font_height = _tm.fontBoundingBoxAscent + _tm.fontBoundingBoxDescent;
     const legend_height = font_height + 5;
-    const x_pad =
-      ctx.measureText("WWW").width +
-      8 +
+    const x_pad = ctx.measureText("WWW").width + 8 +
       (config.subtitle_line_enabled ? config.subtitle_line_width + 3 : 0);
-    const y_pad =
-      font_height +
-      3 +
+    const y_pad = font_height + 3 +
       (config.subtitle_line_enabled ? config.subtitle_line_width + 3 : 0) +
       (config.legend_enabled ? legend_height : 0);
+    this.x_pad = x_pad;
+    this.y_pad = y_pad;
 
     const min_y = config.range_y_min == -1 ? this.min_y : config.range_y_min;
     const max_y = config.range_y_max == -1 ? this.max_y : config.range_y_max;
@@ -236,17 +263,9 @@ class LineChart {
       for (let j = 0; j < d_obj.data.length; j++) {
         let d = d_obj.data[j];
 
-        const x =
-          ((width - x_pad) * (d[0] - d_obj.lowest_x.val)) /
-          (this.max_x - this.min_x) +
-          x_pad;
-
-        // const d_min_y = min_y == this.min_y ? d_obj.lowest_y.val : min_y;
-        // const d_max_y = max_y == this.max_y ? d_obj.highest_y.val : max_y;
-        const y =
-          ((height - y_pad) * (d[1] - min_y)) /
-          (max_y - min_y) +
-          y_pad;
+        const x = ((width - x_pad) * (d[0] - d_obj.lowest_x.val)) / (this.max_x - this.min_x) + x_pad;
+        const y = ((height - y_pad) * (d[1] - min_y)) / (max_y - min_y) + y_pad;
+        this.rendered_datapoints.push({ x, y, x_d: d[0], y_d: d[1] });
 
         // flip
         ctx.lineTo(x, Math.abs(y - height));
@@ -309,35 +328,89 @@ class LineChart {
     if (config.legend_enabled) {
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      let biggest_label = 0;
-      for (let i = 0; i < data.length; i++) {
-        const d_obj = data[i];
-        const tm = ctx.measureText(d_obj.label);
-        if (tm.width > biggest_label) biggest_label = tm.width;
-      }
       const rect_size = font_height - 4;
-      const label_width = rect_size + biggest_label + 8;
+      let x = 0;
       for (let i = 0; i < data.length; i++) {
         const d_obj = data[i];
         ctx.fillStyle = d_obj.color;
         ctx.fillRect(
-          label_width * i,
+          x,
           height - legend_height + 2,
           rect_size,
           rect_size,
         );
+        x += rect_size;
         ctx.fillStyle = config.text_color;
+        let label_size = ctx.measureText(d_obj.label);
         ctx.fillText(
           d_obj.label,
-          rect_size + label_width * i + 1,
-          height - legend_height + 2,
+          x + 2,
+          height - legend_height,
         );
+        x += rect_size + label_size.width;
       }
     }
+
   }
 
   mousemove(ev) {
-    this.cursor.x = ev.clientX;
-    this.cursor.y = ev.clientY;
+    this.cursor.x = ev.offsetX;
+    this.cursor.y = ev.offsetY;
+
+    // find closest x
+    let closest_point = null;
+    let min_dist = Infinity;
+
+    this.rendered_datapoints.forEach(point => {
+      const distance = Math.abs(this.cursor.x - point.x);
+      if (distance < min_dist) {
+        min_dist = distance;
+        closest_point = point;
+      }
+    });
+
+    // draw value
+    let ctx = this.octx;
+    if (closest_point) {
+      ctx.font = `${this.config.font_size} ${this.config.font_name}`;
+      let texts = [`${this.config.subtitle_x(closest_point.x_d)}`];
+      let txt_width = 0;
+      let txt_height = 0;
+      ctx.textBaseline = "top";
+      let line_height = ctx.measureText("W").fontBoundingBoxDescent;
+
+      for (let i = 0; i < this.data.length; i++)
+        texts.push(`${this.data[i].label}: ${this.data[i].data.find(a => a[0] == closest_point.x_d)[1].toFixed(2)}\n`);
+
+      for (let i = 0; i < texts.length; i++) {
+        let txt_size = ctx.measureText(texts[i]);
+        if (txt_width < txt_size.width) txt_width = txt_size.width;
+        txt_height += txt_size.fontBoundingBoxDescent;
+      }
+
+      let pad = 4;
+      let draw_x = closest_point.x + txt_width > this.overlay.width ?
+        closest_point.x - txt_width - pad * 2 : closest_point.x;
+      let draw_y = this.cursor.y - txt_height < 0 ? this.cursor.y : this.cursor.y - txt_height - pad;
+
+      ctx.clearRect(0, 0, this.overlay.width, this.overlay.height);
+      ctx.strokeStyle = this.config.tooltip_border;
+      ctx.strokeRect(closest_point.x, 0, 1, this.overlay.height - this.y_pad);
+      ctx.fillStyle = this.config.tooltip_bg;
+      ctx.fillRect(draw_x, draw_y, txt_width + pad * 2, txt_height + pad * 2);
+      ctx.strokeRect(draw_x, draw_y, txt_width + pad * 2, txt_height + pad * 2);
+      ctx.fillStyle = this.config.text_color;
+      texts.forEach((t, i) => {
+        if (i == 0) {
+          ctx.font = `bold ${this.config.font_size} ${this.config.font_name}`;
+        } else if (i == 1) {
+          ctx.font = `normal ${this.config.font_size} ${this.config.font_name}`;
+        }
+        ctx.fillText(t, draw_x + pad, draw_y + pad + line_height * i);
+      });
+    }
+  }
+  mouseout() {
+    this.octx.clearRect(0, 0, this.overlay.width, this.overlay.height);
   }
 }
